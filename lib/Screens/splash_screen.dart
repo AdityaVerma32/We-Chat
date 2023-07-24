@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:we_chat/Api/apis.dart';
+import 'package:we_chat/Screens/auth/profile_screen.dart';
+import 'package:we_chat/Screens/home_screen.dart';
 import '../main.dart';
 import 'auth/login_screen.dart';
 
@@ -22,8 +25,14 @@ class _SplashScreenState extends State<SplashScreen> {
       //below line will make the notch transparent
       SystemChrome.setSystemUIOverlayStyle(
           SystemUiOverlayStyle(statusBarColor: Colors.transparent));
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (_) => LoginScreen()));
+
+      if (APIs.auth.currentUser != null) {
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (_) => HomeScreen()));
+      } else {
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (_) => LoginScreen()));
+      }
     });
   }
 

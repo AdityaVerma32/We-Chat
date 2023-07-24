@@ -1,7 +1,13 @@
+import 'dart:math';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:we_chat/Api/apis.dart';
 import 'package:we_chat/Screens/home_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../helper/dailogue.dart';
 import '../../main.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -22,6 +28,54 @@ class _LoginScreenState extends State<LoginScreen> {
         opacityLevel = opacityLevel == 1 ? 0.0 : 1.0;
       });
     });
+  }
+
+  _handleGoogleBtnClick() {
+    Dialogue.showProgressbar(context);
+    _signInWithGoogle().then((user) async {
+      // below line will remove the progressindicator
+      Navigator.pop(context);
+
+      // if the user is not null then only move to next page
+      if (user != null) {
+        // print("User : ${user..user}");
+        // print("user Additional Information : ${user.additionalUserInfo}");
+
+        if ((await APIs.userExist())) {
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (_) => HomeScreen()));
+        } else {
+          await APIs.createUser().then((value) {
+            Navigator.pushReplacement(
+                context, MaterialPageRoute(builder: (_) => HomeScreen()));
+          });
+        }
+      }
+    });
+  }
+
+  Future<UserCredential?> _signInWithGoogle() async {
+    try {
+      // Trigger the authentication flow
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+      // Obtain the auth details from the request
+      final GoogleSignInAuthentication? googleAuth =
+          await googleUser?.authentication;
+
+      // Create a new credential
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth?.accessToken,
+        idToken: googleAuth?.idToken,
+      );
+
+      // Once signed in, return the UserCredential
+      // APIs.auth = FirebaseAuth.instance (APIS class)
+      return await APIs.auth.signInWithCredential(credential);
+    } catch (e) {
+      print("/n _signInWithGoogle : $e");
+      Dialogue.showSnackBar(context, "Internet not Connected");
+    }
   }
 
   @override
@@ -55,8 +109,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     shape: const StadiumBorder(),
                     elevation: 1),
                 onPressed: () {
-                  Navigator.pushReplacement(
-                      context, MaterialPageRoute(builder: (_) => HomeScreen()));
+                  _handleGoogleBtnClick();
                 },
                 icon: Image.asset(
                   'images/google.png',
