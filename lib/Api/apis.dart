@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:we_chat/Model/chat_user.dart';
@@ -15,6 +18,9 @@ class APIs {
 
   // for firestore cloud instance
   static FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+  // for accessing firebase storage
+  static FirebaseStorage storage = FirebaseStorage.instance;
 
   // current user's data as saved in the users collection
   static late ChatUser me;
@@ -81,5 +87,32 @@ class APIs {
             context, MaterialPageRoute(builder: (_) => LoginScreen()));
       });
     });
+  }
+
+  // updating profile pic()
+  static Future<void> updateProfilePic(File file) async {
+    // getting the extension of the file
+    final ext = file.path.split('.').last;
+
+    //printing the extension
+    print("Extension : $ext");
+
+    //making a refrence of the file
+    final ref =
+        storage.ref().child("profile_picture/${auth.currentUser!.uid}.$ext");
+
+    // putting the file to that refrence and then printing the meta data like size of the fle
+    ref.putFile(file, SettableMetadata(contentType: 'image/$ext')).then((p0) {
+      print("Data Transferred : ${p0.bytesTransferred / 1000} Kb");
+    });
+
+    // setting currentuser's image to the url of the image saved on the firebase storage
+    me.image = await ref.getDownloadURL();
+
+    // updating the image url on firestore
+    await firestore
+        .collection('users')
+        .doc(auth.currentUser!.uid)
+        .set({'image': me.image});
   }
 }

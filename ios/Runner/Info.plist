@@ -59,5 +59,10 @@
 		</array>
 	</dict>
 </array>
+<!--Permission For picking ie from the gallery or taking image from camera-->
+<key>NSPhotoLibraryUsageDescription </key>
+<string>App requires access to the photo library for picking picture.<string>
+<key>NSCameraUsageDescription</key>
+<string>App requires access to the Camera.</string>
 </dict>
 </plist>

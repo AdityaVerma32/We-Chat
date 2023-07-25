@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -23,8 +24,10 @@ class _SplashScreenState extends State<SplashScreen> {
       // below line will enable the notch
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
       //below line will make the notch transparent
-      SystemChrome.setSystemUIOverlayStyle(
-          SystemUiOverlayStyle(statusBarColor: Colors.transparent));
+      SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          systemNavigationBarColor: Colors.transparent,
+          systemNavigationBarIconBrightness: Brightness.dark));
 
       if (APIs.auth.currentUser != null) {
         Navigator.pushReplacement(
