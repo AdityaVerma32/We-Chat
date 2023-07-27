@@ -8,6 +8,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:we_chat/Model/chat_user.dart';
+import 'package:we_chat/Model/message_model.dart';
 import 'package:we_chat/Screens/auth/login_screen.dart';
 
 import '../helper/dailogue.dart';
@@ -114,5 +115,63 @@ class APIs {
         .collection('users')
         .doc(auth.currentUser!.uid)
         .set({'image': me.image});
+  }
+
+  //******************* Message Screen Related APIS *************************
+
+  // generating conversation id of two users for getting there chats
+  // simply  I concatenated the id's of both the users who are chating
+  static String getconversationID(String id) =>
+      auth.currentUser!.uid.hashCode <= id.hashCode
+          ? '${auth.currentUser!.uid}_${id}'
+          : '${id}_${auth.currentUser!.uid}';
+
+  // We have stored the current user through which are logged in
+  // While moving from one page to another we are passing the user to whome we wich to send message as an argument through the function
+  //get all message will perform two functions
+  //1 . it will create a collection using the current user id and id the user to whome we wich to send messages.
+  //2. if the collection already exist then we retrieve all the earlier messages
+  // getConversationid is used to make message id from the current user and the other user
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getAllMessages(
+      ChatUser user) {
+    return firestore
+        .collection('chats/${getconversationID(user.id)}/messages/')
+        .snapshots();
+  }
+
+  // for sending messages and storing message to the to firestore
+  static Future<void> sendMessage(ChatUser user, String msg) async {
+    // Make the current time as id of the each message
+    final time = DateTime.now().millisecondsSinceEpoch.toString();
+
+    // building a message collection for saving to firestore
+    final Message message = Message(
+        msg: msg,
+        otId: user.id,
+        read:
+            '', // read is kept empty and will be updated when it will pass through blue card
+        type: Type.text,
+        fromId: auth.currentUser!.uid,
+        sent: time);
+
+    // creating refrence to the collection
+    final ref =
+        firestore.collection('chats/${getconversationID(user.id)}/messages/');
+
+    // saving message to the refrence created above
+    await ref.doc(time).set(message.toJson());
+
+    // above two line can also be written by concating
+  }
+
+  // chats(collection) --> conversation_id(doc) --> messages(collection) --> message(doc)
+
+  // update read status by putting the value into read data
+
+  static Future<void> updateMessageReadStatus(Message message) async {
+    await firestore
+        .collection('chats/${getconversationID(message.fromId)}/messages/')
+        .doc(message.sent)
+        .update({'read': DateTime.now().millisecondsSinceEpoch.toString()});
   }
 }

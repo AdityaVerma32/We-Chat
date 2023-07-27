@@ -155,70 +155,79 @@ class _ProfileScreenState extends State<ProfileScreen> {
     showModalBottomSheet(
         context: context,
         constraints: BoxConstraints(maxHeight: mq.height * 0.3),
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(30), topRight: Radius.circular(30))),
+        // shape: RoundedRectangleBorder(
+        //     borderRadius: BorderRadius.only(
+        //         topLeft: Radius.circular(30), topRight: Radius.circular(30))),
         clipBehavior: Clip
             .antiAliasWithSaveLayer, // this line made the upper border curve
 
-        backgroundColor: Colors.lightGreenAccent.withOpacity(0.8),
+        backgroundColor: Colors.transparent,
         builder: (_) {
-          return ListView(
-            padding: EdgeInsets.only(top: mq.height * 0.03),
-            children: [
-              Text('Pick Profile Picture',
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.getFont('Lato',
-                      fontWeight: FontWeight.w500, fontSize: 20)),
-              SizedBox(height: mq.height * 0.02),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          fixedSize: Size(mq.width * 0.3, mq.width * 0.3)),
-                      onPressed: () async {
-                        final ImagePicker picker = ImagePicker();
-                        final XFile? image = await picker.pickImage(
-                            source: ImageSource.gallery, imageQuality: 80);
-                        if (image != null) {
-                          print(
-                              'Image Path: ${image.path} Image Mimetype: ${image.mimeType}');
-                          setState(() {
-                            _imagePath = image.path;
-                          });
-                          APIs.updateProfilePic(File(_imagePath!));
+          return Container(
+            decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.7),
+                borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20))),
+            margin: EdgeInsets.all(9),
+            child: ListView(
+              padding: EdgeInsets.only(top: mq.height * 0.03),
+              children: [
+                Text('Pick Profile Picture',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.getFont('Lato',
+                        fontWeight: FontWeight.w500, fontSize: 20)),
+                SizedBox(height: mq.height * 0.02),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            //shape: RoundedRectangleBorder(),
+                            backgroundColor: Colors.white,
+                            fixedSize: Size(mq.width * 0.3, mq.width * 0.3)),
+                        onPressed: () async {
+                          final ImagePicker picker = ImagePicker();
+                          final XFile? image = await picker.pickImage(
+                              source: ImageSource.gallery, imageQuality: 80);
+                          if (image != null) {
+                            print(
+                                'Image Path: ${image.path} Image Mimetype: ${image.mimeType}');
+                            setState(() {
+                              _imagePath = image.path;
+                            });
+                            APIs.updateProfilePic(File(_imagePath!));
 
-                          Navigator.pop(context);
-                        }
-                      },
-                      child: Image.asset("images/Image.png")),
-                  ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                          shape: BeveledRectangleBorder(),
-                          backgroundColor: Colors.white,
-                          fixedSize: Size(mq.width * 0.3, mq.width * 0.3)),
-                      onPressed: () async {
-                        final ImagePicker picker = ImagePicker();
-                        final XFile? image = await picker.pickImage(
-                            source: ImageSource.camera, imageQuality: 80);
-                        if (image != null) {
-                          print(
-                              'Image Path: ${image.path} Image Mimetype: ${image.mimeType}');
-                          setState(() {
-                            _imagePath = image.path;
-                          });
+                            Navigator.pop(context);
+                          }
+                        },
+                        child: Image.asset("images/Image.png")),
+                    ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            //shape: BeveledRectangleBorder(),
+                            backgroundColor: Colors.white,
+                            fixedSize: Size(mq.width * 0.3, mq.width * 0.3)),
+                        onPressed: () async {
+                          final ImagePicker picker = ImagePicker();
+                          final XFile? image = await picker.pickImage(
+                              source: ImageSource.camera, imageQuality: 80);
+                          if (image != null) {
+                            print(
+                                'Image Path: ${image.path} Image Mimetype: ${image.mimeType}');
+                            setState(() {
+                              _imagePath = image.path;
+                            });
 
-                          APIs.updateProfilePic(File(_imagePath!));
-                          Navigator.pop(context);
-                        }
-                      },
-                      child: Image.asset("images/camera.png")),
-                ],
-              )
-            ],
+                            APIs.updateProfilePic(File(_imagePath!));
+                            Navigator.pop(context);
+                          }
+                        },
+                        child: Image.asset("images/camera.png")),
+                  ],
+                )
+              ],
+            ),
           );
         });
   }

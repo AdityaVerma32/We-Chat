@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:we_chat/Model/chat_user.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:we_chat/Screens/chat_screen.dart';
 
 import '../main.dart';
 
@@ -19,11 +20,14 @@ class _ChatUserCardState extends State<ChatUserCard> {
   Widget build(BuildContext context) {
     return Card(
       margin: EdgeInsets.symmetric(
-          horizontal: mq.width * 0.04, vertical: mq.height * 0.01),
+          horizontal: mq.width * 0.04, vertical: mq.height * 0.001),
       elevation: 0.5,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
-        onTap: () {},
+        onTap: () {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (_) => ChatScreen(user: widget.user)));
+        },
         child: ListTile(
             leading: ClipRRect(
               borderRadius: BorderRadius.circular(50),
