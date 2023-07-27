@@ -211,7 +211,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         onPressed: () async {
                           final ImagePicker picker = ImagePicker();
                           final XFile? image = await picker.pickImage(
-                              source: ImageSource.camera, imageQuality: 80);
+                              source: ImageSource.camera, imageQuality: 70);
                           if (image != null) {
                             print(
                                 'Image Path: ${image.path} Image Mimetype: ${image.mimeType}');

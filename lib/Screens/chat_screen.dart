@@ -1,9 +1,12 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import '../Api/apis.dart';
 import '../Model/chat_user.dart';
 import '../Model/message_model.dart';
@@ -22,74 +25,83 @@ class _ChatScreenState extends State<ChatScreen> {
   List<Message> _list = [];
   final _textController = TextEditingController();
 
+  bool _isUploading = false;
+  bool _showEmoji = false;
+
   @override
   Widget build(BuildContext context) {
     return Container(
       color: Colors.white,
-      child: SafeArea(
-        child: Scaffold(
-            appBar: AppBar(
-              automaticallyImplyLeading: false,
-              flexibleSpace: _appBar(),
-            ),
-            backgroundColor: Color.fromARGB(255, 234, 248, 255),
-            body: Stack(children: [
-              Padding(
-                padding: EdgeInsets.only(bottom: mq.width * 0.16),
-                child: StreamBuilder(
-                    // this line can be can be converted to a function in apis module
-                    stream: APIs.getAllMessages(widget.user),
-                    builder: (context, snapshot) {
-                      switch (snapshot.connectionState) {
-                        case ConnectionState.waiting:
-                        case ConnectionState.none:
-                          return const SizedBox();
+      child: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: SafeArea(
+          child: WillPopScope(
+            onWillPop: () {
+              if (_showEmoji) {
+                setState(() {
+                  _showEmoji = !_showEmoji;
+                });
+                return Future.value(
+                    false); // in case of false current screen doesn't remove
+              } else {
+                return Future.value(true); // Current screen do get removed
+              }
+            },
+            child: Scaffold(
+                appBar: AppBar(
+                  automaticallyImplyLeading: false,
+                  flexibleSpace: _appBar(),
+                ),
+                backgroundColor: Color.fromARGB(255, 234, 248, 255),
+                body: Stack(children: [
+                  Padding(
+                    padding: EdgeInsets.only(
+                        bottom:
+                            _isUploading ? mq.width * 0.28 : mq.width * 0.16),
+                    child: StreamBuilder(
+                        stream: APIs.getAllMessages(widget.user),
+                        builder: (context, snapshot) {
+                          switch (snapshot.connectionState) {
+                            case ConnectionState.waiting:
+                            case ConnectionState.none:
+                              return const SizedBox();
 
-                        case ConnectionState.done:
-                        case ConnectionState.active:
-                          final data = snapshot.data?.docs;
-                          //print('Data : ${jsonEncode(data![0].data())}');
-                          _list = data
-                                  ?.map((e) => Message.fromJson(e.data()))
-                                  .toList() ??
-                              [];
+                            case ConnectionState.done:
+                            case ConnectionState.active:
+                              final data = snapshot.data?.docs;
+                              //print('Data : ${jsonEncode(data![0].data())}');
+                              _list = data
+                                      ?.map((e) => Message.fromJson(e.data()))
+                                      .toList() ??
+                                  [];
 
-                          // _list.add(Message(
-                          //     msg: 'msg',
-                          //     read: '',
-                          //     otId: 'otId',
-                          //     type: Type.text,
-                          //     sent: '12:00 AM',
-                          //     fromId: APIs
-                          //         .auth.currentUser!.uid)); // you are the sender
-                          // _list.add(Message(
-                          //     msg: 'Hello',
-                          //     read: '',
-                          //     otId: 'me',
-                          //     type: Type.text,
-                          //     sent: '6:00 AM',
-                          //     fromId: 'other'));
-
-                          if (_list.isNotEmpty) {
-                            return ListView.builder(
-                                padding: EdgeInsets.only(top: mq.height * 0.01),
-                                itemCount: _list.length,
-                                itemBuilder: ((context, index) {
-                                  return MessageCard(message: _list[index]);
-                                  // return Text(" data : ${list[index]}");
-                                }));
-                          } else {
-                            return Center(
-                              child: Text("Say Hello!!😊",
-                                  style: GoogleFonts.getFont('Lato',
-                                      fontSize: 20)),
-                            );
+                              if (_list.isNotEmpty) {
+                                return ListView.builder(
+                                    physics: _isUploading == true
+                                        ? BouncingScrollPhysics()
+                                        : null,
+                                    reverse: true,
+                                    padding:
+                                        EdgeInsets.only(top: mq.height * 0.01),
+                                    itemCount: _list.length,
+                                    itemBuilder: ((context, index) {
+                                      return MessageCard(message: _list[index]);
+                                      // return Text(" data : ${list[index]}");
+                                    }));
+                              } else {
+                                return Center(
+                                  child: Text("Say Hello!!😊",
+                                      style: GoogleFonts.getFont('Lato',
+                                          fontSize: 20)),
+                                );
+                              }
                           }
-                      }
-                    }),
-              ),
-              Align(alignment: Alignment.bottomCenter, child: _chatInput())
-            ])),
+                        }),
+                  ),
+                  Align(alignment: Alignment.bottomCenter, child: _chatInput()),
+                ])),
+          ),
+        ),
       ),
     );
   }
@@ -142,65 +154,137 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _chatInput() {
     return Padding(
       padding: EdgeInsets.only(bottom: mq.height * 0.001),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          Container(
-            //decoration: BoxDecoration(color: Colors.grey),
-            width: mq.width * 0.8,
-            child: Card(
-              margin: EdgeInsets.only(left: 2, right: 2, bottom: 8),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(25)),
-              child: TextField(
-                controller: _textController,
-                maxLines: 5,
-                minLines: 1,
-                textAlignVertical: TextAlignVertical.center,
-                decoration: InputDecoration(
-                    border: InputBorder.none,
-                    hintText: "Type a message",
-                    prefixIcon: IconButton(
-                      onPressed: () {},
-                      icon:
-                          Icon(Icons.emoji_emotions, color: Colors.lightGreen),
-                    ),
-                    suffixIcon: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                            onPressed: () {},
-                            icon: Icon(
-                              Icons.attach_file,
-                              color: Colors.lightGreen,
-                            )),
-                        IconButton(
-                            onPressed: () {},
-                            icon: Icon(Icons.camera_alt,
-                                color: Colors.lightGreen))
-                      ],
-                    ),
-                    contentPadding: EdgeInsets.all(5)),
-              ),
+          if (_isUploading)
+            Padding(
+              padding: EdgeInsets.only(
+                  top: mq.height * 0.015,
+                  bottom: mq.height * 0.015,
+                  left: mq.width * 0.6),
+              child: CircularProgressIndicator(),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: CircleAvatar(
-              backgroundColor: Colors.lightGreen,
-              radius: 23,
-              child: IconButton(
-                  icon: Icon(
-                    Icons.send,
-                    color: Colors.white,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Container(
+                //decoration: BoxDecoration(color: Colors.grey),
+                width: mq.width * 0.8,
+                child: Card(
+                  margin: EdgeInsets.only(left: 2, right: 2, bottom: 8),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(25)),
+                  child: TextField(
+                    controller: _textController,
+                    maxLines: 5,
+                    minLines: 1,
+                    onTap: () {
+                      if (_showEmoji) {
+                        setState(() {
+                          _showEmoji = !_showEmoji;
+                        });
+                      }
+                    },
+                    textAlignVertical: TextAlignVertical.center,
+                    decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: "Type a message",
+                        prefixIcon: IconButton(
+                          onPressed: () {
+                            FocusScope.of(context).unfocus();
+                            setState(() {
+                              _showEmoji = !_showEmoji;
+                            });
+                          },
+                          icon: Icon(Icons.emoji_emotions,
+                              color: Colors.lightGreen),
+                        ),
+                        suffixIcon: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                                onPressed: () async {
+                                  final ImagePicker picker = ImagePicker();
+
+                                  // for picking multiple Images
+                                  final List<XFile>? images = await picker
+                                      .pickMultiImage(imageQuality: 70);
+
+                                  // traversing the list of images and sending to other user
+                                  for (var img in images!) {
+                                    setState(() {
+                                      _isUploading = !_isUploading;
+                                    });
+                                    await APIs.sendChatImage(
+                                        widget.user, File(img.path));
+                                    setState(() {
+                                      _isUploading = !_isUploading;
+                                    });
+                                  }
+                                },
+                                icon: Icon(
+                                  Icons.gamepad,
+                                  color: Colors.lightGreen,
+                                )),
+                            IconButton(
+                                onPressed: () async {
+                                  final ImagePicker picker = ImagePicker();
+                                  final XFile? image = await picker.pickImage(
+                                      source: ImageSource.camera,
+                                      imageQuality: 70);
+                                  if (image != null) {
+                                    setState(() {
+                                      _isUploading = !_isUploading;
+                                    });
+                                    await APIs.sendChatImage(
+                                        widget.user, File(image.path));
+                                    setState(() {
+                                      _isUploading = !_isUploading;
+                                    });
+                                  }
+                                },
+                                icon: Icon(Icons.camera_alt,
+                                    color: Colors.lightGreen))
+                          ],
+                        ),
+                        contentPadding: EdgeInsets.all(5)),
                   ),
-                  onPressed: () {
-                    if (_textController.text.isNotEmpty) {
-                      APIs.sendMessage(widget.user, _textController.text);
-                      _textController.clear();
-                    }
-                  }),
-            ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: CircleAvatar(
+                  backgroundColor: Colors.lightGreen,
+                  radius: 23,
+                  child: IconButton(
+                      icon: Icon(
+                        Icons.send,
+                        color: Colors.white,
+                      ),
+                      onPressed: () {
+                        if (_textController.text.isNotEmpty) {
+                          APIs.sendMessage(
+                              widget.user, _textController.text, Type.text);
+                          _textController.clear();
+                        }
+                      }),
+                ),
+              )
+            ],
+          ),
+          Container(
+            child: _showEmoji
+                ? SizedBox(
+                    height: mq.height * 0.35,
+                    child: EmojiPicker(
+                        textEditingController: _textController,
+                        config: Config(
+                            bgColor: Color.fromARGB(255, 234, 248, 255),
+                            columns: 7,
+                            initCategory: Category.SMILEYS,
+                            emojiSizeMax: 32 * (Platform.isIOS ? 1.30 : 1.0))))
+                : null,
           )
         ],
       ),

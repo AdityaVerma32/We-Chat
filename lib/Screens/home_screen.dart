@@ -142,6 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       );
                     } else {
                       return ListView.builder(
+                          //prototypeItem: CircularProgressIndicator(),
                           padding: EdgeInsets.only(top: mq.height * 0.01),
                           itemCount:
                               _isSearching ? _searchList.length : list.length,

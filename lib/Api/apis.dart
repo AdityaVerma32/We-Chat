@@ -136,11 +136,12 @@ class APIs {
       ChatUser user) {
     return firestore
         .collection('chats/${getconversationID(user.id)}/messages/')
+        .orderBy('sent', descending: true)
         .snapshots();
   }
 
   // for sending messages and storing message to the to firestore
-  static Future<void> sendMessage(ChatUser user, String msg) async {
+  static Future<void> sendMessage(ChatUser user, String msg, Type type) async {
     // Make the current time as id of the each message
     final time = DateTime.now().millisecondsSinceEpoch.toString();
 
@@ -150,7 +151,7 @@ class APIs {
         otId: user.id,
         read:
             '', // read is kept empty and will be updated when it will pass through blue card
-        type: Type.text,
+        type: type,
         fromId: auth.currentUser!.uid,
         sent: time);
 
@@ -173,5 +174,40 @@ class APIs {
         .collection('chats/${getconversationID(message.fromId)}/messages/')
         .doc(message.sent)
         .update({'read': DateTime.now().millisecondsSinceEpoch.toString()});
+  }
+
+  // getting last message for showing onto to chat user card
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getLastMessage(
+      ChatUser user) {
+    return firestore
+        .collection('chats/${getconversationID(user.id)}/messages/')
+        .orderBy('sent', descending: true)
+        .limit(1)
+        .snapshots();
+  }
+
+  // This will store the Image to Firebase Storage
+  // After storing the image, We will get the download link of the image
+  // athat
+  static Future<void> sendChatImage(ChatUser chatUser, File file) async {
+    // getting the extension of the file
+    final ext = file.path.split('.').last;
+
+    //making a refrence of the file
+    final ref = storage.ref().child(
+        "images/${getconversationID(chatUser.id)}/${DateTime.now().microsecondsSinceEpoch}.$ext");
+
+    // putting the file to that refrence and then printing the meta data like size of the fle
+    await ref
+        .putFile(file, SettableMetadata(contentType: 'image/$ext'))
+        .then((p0) {
+      print("Data Transferred : ${p0.bytesTransferred / 1000} Kb");
+    });
+
+    // setting currentuser's image to the url of the image saved on the firebase storage
+    final imageUrl = await ref.getDownloadURL();
+
+    // updating the image url on firestore
+    await APIs.sendMessage(chatUser, imageUrl, Type.image);
   }
 }
