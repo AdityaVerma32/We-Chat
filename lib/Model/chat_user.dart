@@ -6,6 +6,8 @@ class ChatUser {
   late String id;
   late String email;
   late String pushToken;
+  late bool isOnline;
+  late String lastActive;
 
   ChatUser(
       {required this.image,
@@ -14,7 +16,9 @@ class ChatUser {
       required this.createdAt,
       required this.id,
       required this.email,
-      required this.pushToken});
+      required this.pushToken,
+      required this.isOnline,
+      required this.lastActive});
 
   // used whil getting data from the Backend
   ChatUser.fromJson(Map<String, dynamic> json) {
@@ -25,6 +29,8 @@ class ChatUser {
     id = json['id'] ?? '';
     email = json['email'] ?? '';
     pushToken = json['push_token'] ?? '';
+    isOnline = json['is_online'] ?? '';
+    lastActive = json['last_active'];
   }
 
   // used while transferring data to backend
@@ -37,6 +43,8 @@ class ChatUser {
     data['id'] = this.id;
     data['email'] = this.email;
     data['push_token'] = this.pushToken;
+    data['is_online'] = this.isOnline;
+    data['last_active'] = this.lastActive;
     return data;
   }
 }

@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +9,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:we_chat/Model/chat_user.dart';
 import 'package:we_chat/Model/message_model.dart';
 import 'package:we_chat/Screens/auth/login_screen.dart';
+import 'package:we_chat/Screens/home_screen.dart';
 
 import '../helper/dailogue.dart';
 
@@ -59,6 +59,12 @@ class APIs {
         .exists;
   }
 
+  // // getting latest profile photo
+  // static String getLatestProfile(ChatUser user) {
+  //   final temp = firestore.collection('users').where('id',isEqualTo: user.id).snapshots();
+  //   String img= temp.da
+  // }
+
   // for creating user and saving it in authentication
   static Future<void> createUser() async {
     final time = DateTime.now().millisecondsSinceEpoch.toString();
@@ -70,7 +76,9 @@ class APIs {
         about: "Hey I'm using We Chat",
         createdAt: time,
         email: auth.currentUser!.email.toString(),
-        pushToken: '');
+        pushToken: '',
+        lastActive: '',
+        isOnline: false);
 
     return await firestore
         .collection('users')
@@ -94,9 +102,10 @@ class APIs {
   static Future<void> updateProfilePic(File file) async {
     // getting the extension of the file
     final ext = file.path.split('.').last;
-
+    final temp = file.path.split('.').first;
     //printing the extension
-    print("Extension : $ext");
+    printWarning("Extension : $ext");
+    printWarning(" Name : $temp");
 
     //making a refrence of the file
     final ref =
@@ -104,17 +113,16 @@ class APIs {
 
     // putting the file to that refrence and then printing the meta data like size of the fle
     ref.putFile(file, SettableMetadata(contentType: 'image/$ext')).then((p0) {
-      print("Data Transferred : ${p0.bytesTransferred / 1000} Kb");
+      printWarning("Data Transfered : ${p0.bytesTransferred / 1000} kb");
     });
 
     // setting currentuser's image to the url of the image saved on the firebase storage
     me.image = await ref.getDownloadURL();
-
     // updating the image url on firestore
     await firestore
         .collection('users')
         .doc(auth.currentUser!.uid)
-        .set({'image': me.image});
+        .update({'image': me.image});
   }
 
   //******************* Message Screen Related APIS *************************
@@ -127,10 +135,9 @@ class APIs {
           : '${id}_${auth.currentUser!.uid}';
 
   // We have stored the current user through which are logged in
-  // While moving from one page to another we are passing the user to whome we wich to send message as an argument through the function
-  //get all message will perform two functions
-  //1 . it will create a collection using the current user id and id the user to whome we wich to send messages.
-  //2. if the collection already exist then we retrieve all the earlier messages
+  // While moving from one page to another we are passing the user to whom we wish to send message as an argument through the function
+  //get all message will perform function
+  //1.Retrieve all the earlier messages
   // getConversationid is used to make message id from the current user and the other user
   static Stream<QuerySnapshot<Map<String, dynamic>>> getAllMessages(
       ChatUser user) {
@@ -156,6 +163,7 @@ class APIs {
         sent: time);
 
     // creating refrence to the collection
+    // If the Collection exist, ftech its refrence otherwise make a collection
     final ref =
         firestore.collection('chats/${getconversationID(user.id)}/messages/');
 
@@ -168,7 +176,7 @@ class APIs {
   // chats(collection) --> conversation_id(doc) --> messages(collection) --> message(doc)
 
   // update read status by putting the value into read data
-
+  // this message is called whenever the message passes throught blue message card
   static Future<void> updateMessageReadStatus(Message message) async {
     await firestore
         .collection('chats/${getconversationID(message.fromId)}/messages/')
@@ -209,5 +217,21 @@ class APIs {
 
     // updating the image url on firestore
     await APIs.sendMessage(chatUser, imageUrl, Type.image);
+  }
+
+  // for getting user info
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getUserInfo(
+      ChatUser chatUser) {
+    return firestore
+        .collection('users')
+        .where('id', isEqualTo: chatUser.id)
+        .snapshots();
+  }
+
+  static Future<void> updateActiveStatus(bool isOnline) async {
+    await firestore.collection('users').doc(auth.currentUser!.uid).update({
+      'is_online': isOnline,
+      'last_active': DateTime.now().millisecondsSinceEpoch.toString()
+    });
   }
 }

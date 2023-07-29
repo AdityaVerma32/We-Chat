@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:we_chat/Api/apis.dart';
@@ -47,14 +46,17 @@ class _ChatUserCardState extends State<ChatUserCard> {
 
                 return ListTile(
                     horizontalTitleGap: mq.height * 0.02,
-                    leading: ClipRRect(
-                      borderRadius: BorderRadius.circular(mq.height * 0.05),
-                      child: CachedNetworkImage(
-                          // width: mq.height * 0.3,
-                          // height: mq.width * 0.3,
-                          imageUrl: widget.user.image,
-                          errorWidget: (context, url, Error) =>
-                              const CircleAvatar(child: Icon(Icons.error))),
+                    leading: CircleAvatar(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(mq.height * 0.05),
+                        child: CachedNetworkImage(
+                            // width: mq.height * 0.3,
+                            // height: mq.width * 0.3,
+                            fit: BoxFit.fill,
+                            imageUrl: widget.user.image,
+                            errorWidget: (context, url, Error) =>
+                                const CircleAvatar(child: Icon(Icons.error))),
+                      ),
                     ),
                     title: Text(widget.user.name),
                     subtitle: Text(

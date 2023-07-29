@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:we_chat/Screens/auth/login_screen.dart';
-import 'package:we_chat/Screens/home_screen.dart';
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:we_chat/Screens/splash_screen.dart';
 import 'firebase_options.dart';

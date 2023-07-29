@@ -3,9 +3,10 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 import 'package:we_chat/Model/chat_user.dart';
+import 'package:we_chat/Screens/home_screen.dart';
 import 'package:we_chat/helper/dailogue.dart';
 import 'package:we_chat/main.dart';
 import 'package:image_picker/image_picker.dart';
@@ -67,15 +68,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       : ClipRRect(
                           borderRadius: BorderRadius.circular(mq.height * 0.4),
                           child: CachedNetworkImage(
-                              fit: BoxFit.fill,
-                              height: mq.height * 0.25,
-                              width: mq.height * 0.25,
-                              imageUrl: widget.user.image,
-                              errorWidget: ((context, url, error) =>
-                                  CircleAvatar(
-                                      child: Icon(
-                                    CupertinoIcons.person,
-                                  ))))),
+                            fit: BoxFit.cover,
+                            height: mq.height * 0.25,
+                            width: mq.height * 0.25,
+                            imageUrl: widget.user.image,
+                            placeholder: (context, url) {
+                              printWarning("Inside Cached Network Image");
+                              printWarning("Image Path : ${widget.user.image}");
+                              return CircularProgressIndicator();
+                            },
+                            errorWidget: (context, url, error) =>
+                                CircleAvatar(child: Icon(Icons.error)),
+                          )),
                   Positioned(
                     bottom: 0,
                     right: 0,
@@ -136,7 +140,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Dialogue.showSnackBar(
                             context, "Profile updated Sucessfully");
                       });
-                      print("Inside validate");
+                      printWarning("Inside validate");
                     }
                   },
                   icon: Icon(Icons.edit),
@@ -192,13 +196,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           final XFile? image = await picker.pickImage(
                               source: ImageSource.gallery, imageQuality: 80);
                           if (image != null) {
-                            print(
+                            printWarning(
                                 'Image Path: ${image.path} Image Mimetype: ${image.mimeType}');
                             setState(() {
                               _imagePath = image.path;
                             });
                             APIs.updateProfilePic(File(_imagePath!));
 
+                            // for hiding bottom sheet
                             Navigator.pop(context);
                           }
                         },
@@ -213,13 +218,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           final XFile? image = await picker.pickImage(
                               source: ImageSource.camera, imageQuality: 70);
                           if (image != null) {
-                            print(
+                            printWarning(
                                 'Image Path: ${image.path} Image Mimetype: ${image.mimeType}');
                             setState(() {
                               _imagePath = image.path;
                             });
 
                             APIs.updateProfilePic(File(_imagePath!));
+
+                            // hiding bottom sheet
                             Navigator.pop(context);
                           }
                         },

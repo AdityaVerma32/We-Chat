@@ -7,7 +7,7 @@ import 'package:we_chat/helper/my_date_utile.dart';
 import '../main.dart';
 
 class MessageCard extends StatefulWidget {
-  Message message;
+  final Message message;
 
   MessageCard({super.key, required this.message});
 

@@ -1,9 +1,6 @@
-import 'dart:convert';
-
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter/services.dart';
 import 'package:we_chat/Api/apis.dart';
 import 'package:we_chat/widgets/chat_user_cad.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -27,6 +24,17 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     APIs.getSelfUser();
+    // below code checks the life cycle of the Application
+    // If the Application Home Screen is On then, the message is AppLifecycleState.resumed
+    // If the Application Home Screen is Off then, the message is AppLifecycleState.paused
+    SystemChannels.lifecycle.setMessageHandler((message) {
+      printWarning('Message : $message');
+
+      if (message.toString().contains('resume')) APIs.updateActiveStatus(true);
+      if (message.toString().contains('pause')) APIs.updateActiveStatus(false);
+
+      return Future.value(message);
+    });
   }
 
   @override
@@ -162,4 +170,8 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+}
+
+void printWarning(String text) {
+  print('\x1B[33m$text\x1B[0m');
 }

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:we_chat/Api/apis.dart';
-import 'package:we_chat/Screens/auth/profile_screen.dart';
 import 'package:we_chat/Screens/home_screen.dart';
 import '../main.dart';
 import 'auth/login_screen.dart';

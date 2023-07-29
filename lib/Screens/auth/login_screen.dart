@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:we_chat/Api/apis.dart';
@@ -75,6 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (e) {
       print("/n _signInWithGoogle : $e");
       Dialogue.showSnackBar(context, "Internet not Connected");
+      return null;
     }
   }
 
