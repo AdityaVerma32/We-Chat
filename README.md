@@ -1,16 +1,8 @@
 # we_chat
 
-A new Flutter project.
+An Android Chatting Application built using Flutter(Front-End), Firebase, and Firestore (Back-End).
 
-## Getting Started
+## ScreenShots
 
-This project is a starting point for a Flutter application.
+![Untitled design](https://github.com/AdityaVerma32/We-Chat/assets/91420991/edfa7fdf-34aa-45fd-95b7-9226f36e3a09)
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
