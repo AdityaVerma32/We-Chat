@@ -4,5 +4,4 @@ An Android Chatting Application built using Flutter(Front-End), Firebase, and Fi
 
 ## ScreenShots
 
-![Untitled design](https://github.com/AdityaVerma32/We-Chat/assets/91420991/edfa7fdf-34aa-45fd-95b7-9226f36e3a09)
-
+![Untitled design](https://github.com/AdityaVerma32/We-Chat/assets/91420991/d8f7426c-86af-4b8f-8bee-ebc3baca5162)
