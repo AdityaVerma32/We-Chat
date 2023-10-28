@@ -53,7 +53,6 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         child: Scaffold(
           appBar: AppBar(
-            leading: const Icon(Icons.home),
             title: _isSearching
                 ? TextField(
                     onChanged: (val) {
@@ -94,16 +93,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                 user: APIs.me,
                               )));
                 },
-                icon: const Icon(Icons.more_vert),
+                icon: const Icon(CupertinoIcons.profile_circled),
               )
             ],
           ),
-          floatingActionButton: FloatingActionButton(
+          floatingActionButton: FloatingActionButton.extended(
             onPressed: () async {
               // function for signing out
               APIs.signingOut(context);
             },
-            child: const Icon(Icons.add_comment_rounded),
+            label: const Text("LogOut"),
           ),
           body: StreamBuilder(
               // this line can be can be converted to a function in apis module

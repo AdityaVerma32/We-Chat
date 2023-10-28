@@ -6,6 +6,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:we_chat/Screens/chat_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:we_chat/helper/my_date_utile.dart';
+import 'package:we_chat/widgets/dialogs/profile_dialog.dart';
 import '../Model/message_model.dart';
 import '../main.dart';
 
@@ -46,13 +47,18 @@ class _ChatUserCardState extends State<ChatUserCard> {
 
                 return ListTile(
                     horizontalTitleGap: mq.height * 0.02,
-                    leading: CircleAvatar(
+                    leading: InkWell(
+                      onTap: () {
+                        showDialog(
+                            context: context,
+                            builder: (_) => ProfileDialog(user: widget.user));
+                      },
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(mq.height * 0.05),
                         child: CachedNetworkImage(
                             // width: mq.height * 0.3,
                             // height: mq.width * 0.3,
-                            fit: BoxFit.fill,
+                            fit: BoxFit.cover,
                             imageUrl: widget.user.image,
                             errorWidget: (context, url, Error) =>
                                 const CircleAvatar(child: Icon(Icons.error))),

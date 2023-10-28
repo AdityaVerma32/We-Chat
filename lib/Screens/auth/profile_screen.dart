@@ -32,9 +32,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          leading: const Icon(Icons.home),
           title: Text("Profile",
-              style: GoogleFonts.getFont('Lato', fontWeight: FontWeight.w300)),
+              style: GoogleFonts.getFont("Lato", fontWeight: FontWeight.w800)),
         ),
         floatingActionButton: FloatingActionButton.extended(
             onPressed: () {
@@ -95,8 +94,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   )
                 ]),
                 SizedBox(height: mq.height * 0.02),
-                Text("test@gmail.com",
-                    style: GoogleFonts.getFont("Dancing Script", fontSize: 20)),
+                Text(APIs.me.email,
+                    style: GoogleFonts.getFont("Lato", fontSize: 16)),
                 SizedBox(height: mq.height * 0.02),
                 TextFormField(
                     onSaved: (val) => APIs.me.name = val ?? '',

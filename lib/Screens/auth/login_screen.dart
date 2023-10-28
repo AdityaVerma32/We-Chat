@@ -54,9 +54,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<UserCredential?> _signInWithGoogle() async {
     try {
+      print("Debug 1");
+
       // Trigger the authentication flow
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-
       // Obtain the auth details from the request
       final GoogleSignInAuthentication? googleAuth =
           await googleUser?.authentication;
@@ -71,7 +72,7 @@ class _LoginScreenState extends State<LoginScreen> {
       // APIs.auth = FirebaseAuth.instance (APIS class)
       return await APIs.auth.signInWithCredential(credential);
     } catch (e) {
-      print("/n _signInWithGoogle : $e");
+      print("\n _signInWithGoogle : $e");
       Dialogue.showSnackBar(context, "Internet not Connected");
       return null;
     }
@@ -82,6 +83,7 @@ class _LoginScreenState extends State<LoginScreen> {
     mq = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
+        elevation: 01,
         automaticallyImplyLeading: true,
         title: Text('Welcome to we chat', style: GoogleFonts.lato()),
       ),
@@ -99,12 +101,12 @@ class _LoginScreenState extends State<LoginScreen> {
               )),
           Positioned(
               bottom: mq.height * .15,
-              left: mq.width * .05,
-              width: mq.width * .9,
+              left: mq.width * 0.15,
+              width: mq.width * .7,
               height: mq.height * .07,
               child: ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white24,
+                    backgroundColor: Colors.white70,
                     shape: const StadiumBorder(),
                     elevation: 1),
                 onPressed: () {
@@ -121,7 +123,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         children: [
                       TextSpan(
                           text: 'Sign In with ',
-                          style: GoogleFonts.lato(fontWeight: FontWeight.w400)),
+                          style: GoogleFonts.lato(fontWeight: FontWeight.w300)),
                       TextSpan(
                           text: 'Google',
                           style: GoogleFonts.lato(fontWeight: FontWeight.w700))

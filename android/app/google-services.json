@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "576965035032-shce4o9qpktc8al70gmek70qfb9nngpu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.we_chat",
+            "certificate_hash": "cae0d0b275e4ffae56d88d8231e629446521690e"
+          }
+        },
+        {
           "client_id": "576965035032-32aougdhndg6nonrksqcpavstgp7nsvr.apps.googleusercontent.com",
           "client_type": 3
         }
